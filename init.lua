@@ -65,10 +65,6 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
     -- NOTE: First, some plugins that don't require any configuration
 
-    -- Git related plugins
-    'tpope/vim-fugitive',
-    'tpope/vim-rhubarb',
-
     -- Detect tabstop and shiftwidth automatically
     'tpope/vim-sleuth',
 
@@ -126,12 +122,6 @@ require('lazy').setup({
 
                 -- Only attach to clients that support document formatting
                 if not client.server_capabilities.documentFormattingProvider then
-                  return
-                end
-
-                -- Tsserver usually works poorly. Sorry you work with bad languages
-                -- You can remove this line if you know what you're doing :)
-                if client.name == 'tsserver' then
                   return
                 end
 
@@ -580,6 +570,5 @@ cmp.setup {
         { name = 'luasnip' },
     },
 }
-
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
