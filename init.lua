@@ -1,43 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-
-Kickstart.nvim is *not* a distribution.
-
-Kickstart.nvim is a template for your own configuration.
-  The goal is that you can read every line of code, top-to-bottom, understand
-  what your configuration is doing, and modify it to suit your needs.
-
-  Once you've done that, you should start exploring, configuring and tinkering to
-  explore Neovim!
-
-  If you don't know anything about Lua, I recommend taking some time to read through
-  a guide. One possible example:
-  - https://learnxinyminutes.com/docs/lua/
-
-  And then you can explore or search through `:help lua-guide`
-
-
-Kickstart Guide:
-
-I have left several `:help X` comments throughout the init.lua
-You should run that command and read that help section for more information.
-
-In addition, I have some `NOTE:` items throughout the file.
-These are for you, the reader to help understand what is happening. Feel free to delete
-them once you know what you're doing, but they should serve as a guide for when you
-are first encountering a few different constructs in your nvim config.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now :)
---]]
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
@@ -57,19 +17,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
 require('lazy').setup({
-    -- NOTE: First, some plugins that don't require any configuration
-
-    -- Detect tabstop and shiftwidth automatically
     'tpope/vim-sleuth',
 
-    -- NOTE: This is where your plugins related to LSP can be installed.
-    --  The configuration is done below. Search for lspconfig to find it below.
     {
         -- LSP Configuration & Plugins
         'neovim/nvim-lspconfig',
@@ -85,67 +35,6 @@ require('lazy').setup({
             -- Additional lua configuration, makes nvim stuff amazing!
             'folke/neodev.nvim',
         },
-
-        config = function()
-          -- Switch for controlling whether you want autoformatting.
-          --  Use :KickstartFormatToggle to toggle autoformatting on or off
-          local format_is_enabled = true
-          vim.api.nvim_create_user_command('KickstartFormatToggle', function()
-            format_is_enabled = not format_is_enabled
-            print('Setting autoformatting to: ' .. tostring(format_is_enabled))
-          end, {})
-
-          -- Create an augroup that is used for managing our formatting autocmds.
-          --      We need one augroup per client to make sure that multiple clients
-          --      can attach to the same buffer without interfering with each other.
-          local _augroups = {}
-          local get_augroup = function(client)
-            if not _augroups[client.id] then
-              local group_name = 'kickstart-lsp-format-' .. client.name
-              local id = vim.api.nvim_create_augroup(group_name, { clear = true })
-              _augroups[client.id] = id
-            end
-
-            return _augroups[client.id]
-          end
-
-          -- Whenever an LSP attaches to a buffer, we will run this function.
-          --
-          -- See `:help LspAttach` for more information about this autocmd event.
-          vim.api.nvim_create_autocmd('LspAttach', {
-              group = vim.api.nvim_create_augroup('kickstart-lsp-attach-format', { clear = true }),
-              -- This is where we attach the autoformatting for reasonable clients
-              callback = function(args)
-                local client_id = args.data.client_id
-                local client = vim.lsp.get_client_by_id(client_id)
-                local bufnr = args.buf
-
-                -- Only attach to clients that support document formatting
-                if not client.server_capabilities.documentFormattingProvider then
-                  return
-                end
-
-                -- Create an autocmd that will run *before* we save the buffer.
-                --  Run the formatting command for the LSP that has just attached.
-                vim.api.nvim_create_autocmd('BufWritePre', {
-                    group = get_augroup(client),
-                    buffer = bufnr,
-                    callback = function()
-                      if not format_is_enabled then
-                        return
-                      end
-
-                      vim.lsp.buf.format {
-                          async = false,
-                          filter = function(c)
-                            return c.id == client.id
-                          end,
-                      }
-                    end,
-                })
-              end,
-          })
-        end,
     },
 
     {
@@ -253,8 +142,8 @@ require('lazy').setup({
     -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
     --       These are some example plugins that I've included in the kickstart repository.
     --       Uncomment any of the lines below to enable them.
-    -- require 'kickstart.plugins.autoformat',
-    -- require 'kickstart.plugins.debug',
+    require 'kickstart.plugins.autoformat',
+    require 'kickstart.plugins.debug',
 
     -- NOTE: The import below automatically adds your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
     --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
@@ -263,10 +152,6 @@ require('lazy').setup({
     --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
     { import = 'custom.plugins' },
 }, {})
-
--- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change these options as you wish!
 
 -- Set highlight on search
 vim.o.hlsearch = false
@@ -279,9 +164,6 @@ vim.wo.number = true
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
 vim.o.clipboard = 'unnamedplus'
 
 -- Enable break indent
